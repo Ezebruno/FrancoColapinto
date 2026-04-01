@@ -1,0 +1,2075 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Franco Colapinto — Piloto de Fórmula 1</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 140 100%22><text y=%22.95em%22 font-size=%2295%22 font-family=%22Bebas Neue, sans-serif%22 font-weight=%22bold%22 x=%2220%22><tspan fill=%22white%22></tspan><tspan fill=%22%2374ACDF%22>43</tspan></text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=Playfair+Display:ital@1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cel: #74ACDF;
+    --pink: #FF87BC;
+    --cel-dark: #3a7fc1;
+    --pink-dark: #cc6c96;
+    --white: #f8f9fa;
+    --black: #050505;
+    --dark: #0a0a0a;
+    --mid: #151515;
+    --accent: linear-gradient(135deg, var(--cel), var(--pink));
+    --glow: rgba(255, 135, 188, 0.4);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* CUSTOM CURSOR */
+  .cursor {
+    position: fixed;
+    width: 30px; height: 30px;
+    background-image: url('icono-mouse.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: transform 0.2s cubic-bezier(0.23, 1, 0.32, 1), width 0.3s ease, height 0.3s ease;
+    /* This filter turns black icons into Alpine Pink #FF87BC */
+    filter: invert(72%) sepia(87%) saturate(301%) hue-rotate(297deg) brightness(101%) contrast(102%) drop-shadow(0 0 5px var(--pink));
+  }
+  .cursor-ring {
+    position: fixed;
+    width: 45px; height: 45px;
+    border: 1px solid rgba(255,135,188,0.2);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: transform 0.25s cubic-bezier(0.23, 1, 0.32, 1), width 0.3s ease, height 0.3s ease, border-color 0.3s ease;
+  }
+  .cursor.hover { 
+    width: 40px; height: 40px; 
+    transform: translate(-50%, -50%) rotate(15deg);
+    filter: invert(67%) sepia(21%) saturate(1028%) hue-rotate(174deg) brightness(97%) contrast(85%) drop-shadow(0 0 10px var(--cel));
+  }
+  .cursor-ring.hover { width: 65px; height: 65px; border-color: var(--cel); border-width: 2px; }
+
+  /* LOADER */
+  #loader {
+    position: fixed; inset: 0;
+    background: var(--black);
+    z-index: 10000;
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column;
+    transition: opacity 0.8s ease, visibility 0.8s ease;
+  }
+  #loader.hidden { opacity: 0; visibility: hidden; }
+
+  .loader-num {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 25vw;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(116,172,223,0.3);
+    line-height: 1;
+    animation: loaderPulse 0.5s ease infinite alternate;
+  }
+  .loader-bar {
+    width: 200px; height: 1px;
+    background: rgba(116,172,223,0.2);
+    margin-top: 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .loader-bar::after {
+    content: '';
+    position: absolute; left: -100%; top: 0;
+    width: 100%; height: 100%;
+    background: var(--cel);
+    animation: loaderBar 2s ease forwards;
+  }
+  .loader-text {
+    font-size: 0.65rem;
+    letter-spacing: 0.4em;
+    color: rgba(116,172,223,0.6);
+    margin-top: 1rem;
+    text-transform: uppercase;
+    animation: fadeIn 0.5s ease forwards;
+  }
+
+  @keyframes loaderBar { to { left: 100%; } }
+  @keyframes loaderPulse { from { opacity: 0.3; } to { opacity: 0.8; } }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 1000;
+    padding: 1.5rem 3rem;
+    display: flex; align-items: center; justify-content: space-between;
+    mix-blend-mode: normal;
+    transition: padding 0.3s ease;
+  }
+  nav.scrolled { padding: 1rem 3rem; }
+  nav::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(to bottom, rgba(10,10,10,0.95) 0%, transparent 100%);
+    pointer-events: none;
+  }
+
+  .nav-logo {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 1.6rem;
+    letter-spacing: 0.05em;
+    color: var(--white);
+    text-decoration: none;
+    position: relative;
+    z-index: 1;
+  }
+  .nav-logo span { color: var(--cel); }
+
+  .nav-links {
+    display: flex; gap: 2.5rem; list-style: none;
+    position: relative; z-index: 1;
+  }
+  .nav-links a {
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.6);
+    text-decoration: none;
+    transition: color 0.3s ease;
+    position: relative;
+  }
+  .nav-links a::after {
+    content: '';
+    position: absolute; bottom: -4px; left: 0;
+    width: 0; height: 1px;
+    background: var(--cel);
+    transition: width 0.3s ease;
+  }
+  .nav-links a:hover { color: var(--white); }
+  .nav-links a:hover::after { width: 100%; }
+
+  .nav-num {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 1.2rem;
+    color: var(--cel);
+    letter-spacing: 0.05em;
+    position: relative; z-index: 1;
+  }
+
+  /* HERO */
+  #hero {
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+    display: flex; align-items: flex-end;
+  }
+
+  .hero-bg {
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, #0a0a0a 0%, #0d1a2e 40%, #0a1628 70%, #0a0a0a 100%);
+  }
+
+  /* Argentine flag stripes subtle */
+  .hero-stripes {
+    position: absolute; inset: 0;
+    background: repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 60px,
+      rgba(116,172,223,0.025) 60px,
+      rgba(116,172,223,0.025) 61px
+    );
+  }
+
+  /* Big number 43 background */
+  .hero-number-bg {
+    position: absolute;
+    right: -2vw; top: 50%;
+    transform: translateY(-50%);
+    font-family: 'Bebas Neue', cursive;
+    font-size: 55vw;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(116,172,223,0.06);
+    line-height: 0.85;
+    pointer-events: none;
+    user-select: none;
+    animation: numFloat 8s ease-in-out infinite;
+  }
+
+  @keyframes numFloat {
+    0%, 100% { transform: translateY(-50%) scale(1); }
+    50% { transform: translateY(-52%) scale(1.005); }
+  }
+
+  /* Speed lines */
+  .speed-lines {
+    position: absolute; inset: 0; pointer-events: none;
+  }
+  .speed-line {
+    position: absolute;
+    height: 1px;
+    background: linear-gradient(to right, transparent, rgba(116,172,223,0.3), transparent);
+    animation: speedLine linear infinite;
+  }
+
+  @keyframes speedLine {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(200%); }
+  }
+
+  .hero-content {
+    position: relative; z-index: 10;
+    padding: 0 3rem 4rem;
+    width: 100%;
+  }
+
+  .hero-tag {
+    display: inline-block;
+    font-size: 0.6rem;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--cel);
+    border: 1px solid rgba(116,172,223,0.4);
+    padding: 0.5rem 1.2rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+    overflow: hidden;
+    animation: slideInLeft 1s ease 2.5s both;
+  }
+  .hero-tag::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: rgba(116,172,223,0.08);
+  }
+
+  .hero-name {
+    font-family: 'Bebas Neue', cursive;
+    font-size: clamp(4rem, 12vw, 14rem);
+    line-height: 0.85;
+    letter-spacing: -0.01em;
+    animation: slideInLeft 1s ease 2.6s both;
+    position: relative;
+  }
+
+  .hero-name .first { color: var(--white); display: block; }
+  .hero-name .last {
+    color: transparent;
+    -webkit-text-stroke: 2px var(--pink);
+    display: block;
+  }
+
+  .hero-subtitle {
+    font-size: 0.75rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.5);
+    margin-top: 1.5rem;
+    animation: slideInLeft 1s ease 2.7s both;
+  }
+
+  .hero-subtitle span { color: var(--cel); }
+
+  .hero-scroll {
+    position: absolute;
+    bottom: 2rem; right: 3rem;
+    display: flex; flex-direction: column; align-items: center;
+    gap: 0.5rem;
+    animation: fadeIn 1s ease 3.2s both;
+  }
+  .hero-scroll span {
+    font-size: 0.55rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+    writing-mode: vertical-rl;
+  }
+  .hero-scroll-line {
+    width: 1px;
+    height: 60px;
+    background: linear-gradient(to bottom, var(--cel), transparent);
+    animation: scrollLine 2s ease-in-out infinite;
+  }
+  @keyframes scrollLine {
+    0% { transform: scaleY(0); transform-origin: top; }
+    50% { transform: scaleY(1); transform-origin: top; }
+    51% { transform: scaleY(1); transform-origin: bottom; }
+    100% { transform: scaleY(0); transform-origin: bottom; }
+  }
+
+  .hero-flag {
+    position: absolute;
+    top: 2.5rem; right: 3rem;
+    display: flex; flex-direction: column;
+    width: 50px;
+    border-radius: 3px;
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(116,172,223,0.3);
+    animation: fadeIn 1s ease 3s both;
+  }
+  .flag-strip { height: 10px; }
+  .flag-strip.cel { background: var(--cel); }
+  .flag-strip.white { background: var(--white); display: flex; align-items: center; justify-content: center; height: 14px; }
+  .sun { font-size: 8px; }
+
+  .hero-stats {
+    position: absolute;
+    right: 3rem; bottom: 5rem;
+    display: flex; flex-direction: column; gap: 1.5rem;
+    animation: slideInRight 1s ease 2.8s both;
+  }
+  .hero-stat { text-align: right; }
+  .hero-stat .val {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 2rem;
+    color: var(--cel);
+    display: block;
+    line-height: 1;
+  }
+  .hero-stat .label {
+    font-size: 0.55rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+  }
+
+  @keyframes slideInLeft {
+    from { opacity: 0; transform: translateX(-40px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes slideInRight {
+    from { opacity: 0; transform: translateX(40px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  /* HORIZONTAL SCROLL SECTION */
+  .h-scroll-wrapper {
+    position: relative;
+    height: 400vh;
+  }
+  .h-scroll-sticky {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow: hidden;
+  }
+  .h-scroll-track {
+    display: flex;
+    height: 100%;
+    will-change: transform;
+  }
+  .h-slide {
+    min-width: 100vw;
+    height: 100%;
+    position: relative;
+    display: flex; align-items: center;
+    flex-shrink: 0;
+  }
+
+  /* QUOTE SECTION */
+  #quote-section {
+    padding: 8rem 3rem;
+    position: relative;
+    overflow: hidden;
+  }
+  #quote-section::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--cel), transparent);
+  }
+
+  .quote-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--cel);
+    margin-bottom: 3rem;
+  }
+
+  .quote-text {
+    font-family: 'Bebas Neue', cursive;
+    font-size: clamp(2.5rem, 6vw, 7rem);
+    line-height: 0.9;
+    max-width: 80%;
+    letter-spacing: 0.01em;
+    animation: none;
+  }
+  .quote-text .highlight { color: var(--cel); }
+
+  .quote-attr {
+    margin-top: 3rem;
+    display: flex; align-items: center; gap: 1rem;
+  }
+  .quote-attr-line { width: 40px; height: 1px; background: var(--cel); }
+  .quote-attr-text {
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+    font-style: italic;
+  }
+
+  /* PHOTOS GRID */
+  #photos {
+    padding: 4rem 3rem;
+    position: relative;
+  }
+
+  .section-header {
+    display: flex; justify-content: space-between; align-items: flex-end;
+    margin-bottom: 3rem;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    padding-bottom: 1.5rem;
+  }
+  .section-title {
+    font-family: 'Bebas Neue', cursive;
+    font-size: clamp(3rem, 7vw, 8rem);
+    line-height: 0.85;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(255,255,255,0.2);
+  }
+  .section-title .filled { -webkit-text-stroke: 0; color: var(--white); }
+  .section-link {
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--cel);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(116,172,223,0.3);
+    padding-bottom: 2px;
+    transition: border-color 0.3s ease;
+  }
+  .section-link:hover { border-color: var(--cel); }
+
+  /* MARQUEE */
+  .marquee-wrapper {
+    overflow: hidden;
+    padding: 2rem 0;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    margin: 4rem 0;
+  }
+  .marquee-track {
+    display: flex;
+    gap: 3rem;
+    animation: marquee 20s linear infinite;
+    white-space: nowrap;
+  }
+  .marquee-item {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 1.2rem;
+    letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.15);
+    flex-shrink: 0;
+    display: flex; align-items: center; gap: 2rem;
+  }
+  .marquee-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--cel);
+    flex-shrink: 0;
+  }
+
+  @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  /* GRID PHOTOS */
+  .photo-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    grid-template-rows: auto auto;
+    gap: 0.75rem;
+  }
+  .photo-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 2px;
+    background: var(--mid);
+    cursor: pointer;
+  }
+  .photo-card:first-child { grid-row: span 2; }
+
+  .photo-card img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.7s cubic-bezier(0.23, 1, 0.32, 1), filter 0.5s ease;
+    filter: saturate(0.8);
+  }
+  .photo-card:hover img {
+    transform: scale(1.05);
+    filter: saturate(1.1);
+  }
+  .photo-card .overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 50%);
+    opacity: 0; transition: opacity 0.4s ease;
+    display: flex; align-items: flex-end;
+    padding: 1.5rem;
+  }
+  .photo-card:hover .overlay { opacity: 1; }
+  .photo-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.7);
+  }
+  .photo-placeholder {
+    width: 100%; aspect-ratio: 4/3;
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 0.5rem;
+    background: linear-gradient(135deg, var(--mid) 0%, #1a2535 100%);
+  }
+  .photo-placeholder .ph-num {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 5rem;
+    color: rgba(116,172,223,0.15);
+    line-height: 1;
+  }
+  .photo-placeholder .ph-label {
+    font-size: 0.55rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: rgba(116,172,223,0.3);
+  }
+  .photo-card:first-child .photo-placeholder {
+    aspect-ratio: unset;
+    height: 100%;
+    min-height: 400px;
+  }
+  .photo-card:first-child .photo-placeholder .ph-num { font-size: 10rem; }
+
+  /* STATS ROW */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.06);
+    margin: 6rem 3rem;
+  }
+  .stat-box {
+    background: var(--black);
+    padding: 3rem 2rem;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.3s ease;
+  }
+  .stat-box::before {
+    content: '';
+    position: absolute; top: 0; left: 0;
+    width: 100%; height: 2px;
+    background: var(--cel);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.5s ease;
+  }
+  .stat-box:hover { background: rgba(116,172,223,0.04); }
+  .stat-box:hover::before { transform: scaleX(1); }
+
+  .stat-num {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 4.5rem;
+    line-height: 1;
+    color: var(--white);
+    display: block;
+  }
+  .stat-num .unit {
+    font-size: 2rem;
+    color: var(--cel);
+  }
+  .stat-desc {
+    font-size: 0.65rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.35);
+    margin-top: 0.75rem;
+    display: block;
+  }
+  .stat-year {
+    position: absolute;
+    bottom: 1.5rem; right: 1.5rem;
+    font-size: 0.55rem;
+    letter-spacing: 0.3em;
+    color: rgba(116,172,223,0.3);
+  }
+
+  /* CAR SHOWCASE */
+  #car-section {
+    padding: 6rem 3rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .car-inner {
+    position: relative;
+    min-height: 60vh;
+    display: flex; align-items: center;
+  }
+
+  .car-bg-text {
+    position: absolute;
+    font-family: 'Bebas Neue', cursive;
+    font-size: 35vw;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(116,172,223,0.05);
+    bottom: -10%;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    pointer-events: none;
+    line-height: 1;
+  }
+
+  .car-content {
+    position: relative; z-index: 2;
+    max-width: 45%;
+  }
+
+  .car-visual {
+    position: absolute;
+    right: -5%;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 60%;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* SVG F1 Car illustration */
+  .car-svg-wrapper {
+    width: 100%;
+    filter: drop-shadow(0 20px 60px rgba(116,172,223,0.2));
+    animation: carFloat 6s ease-in-out infinite;
+  }
+  @keyframes carFloat {
+    0%, 100% { transform: translateY(0px) rotate(-1deg); }
+    50% { transform: translateY(-15px) rotate(0deg); }
+  }
+
+  .car-tag {
+    font-size: 0.6rem;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--cel);
+    margin-bottom: 1.5rem;
+    display: block;
+  }
+  .car-title {
+    font-family: 'Bebas Neue', cursive;
+    font-size: clamp(2.5rem, 5vw, 6rem);
+    line-height: 0.85;
+    margin-bottom: 2rem;
+  }
+  .car-title .accent { color: var(--cel); }
+  .car-desc {
+    font-size: 0.85rem;
+    line-height: 1.8;
+    color: rgba(255,255,255,0.45);
+    max-width: 380px;
+    margin-bottom: 2.5rem;
+  }
+
+  .car-specs {
+    display: flex; flex-direction: column; gap: 1rem;
+  }
+  .car-spec {
+    display: flex; align-items: center; gap: 1.5rem;
+  }
+  .spec-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+    min-width: 100px;
+  }
+  .spec-bar {
+    flex: 1; height: 2px;
+    background: rgba(255,255,255,0.08);
+    position: relative;
+    overflow: hidden;
+  }
+  .spec-fill {
+    position: absolute; top: 0; left: 0;
+    height: 100%;
+    background: var(--cel);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 1.5s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  .spec-fill.animated { transform: scaleX(1); }
+  .spec-val {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 1.1rem;
+    color: var(--cel);
+    min-width: 50px;
+    text-align: right;
+  }
+
+  /* TIMELINE */
+  #timeline {
+    padding: 6rem 3rem;
+    position: relative;
+  }
+
+  .timeline-track {
+    position: relative;
+    margin-top: 4rem;
+  }
+  .timeline-line {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 1px;
+    background: linear-gradient(to bottom, transparent, var(--cel), transparent);
+    margin-left: 7px;
+  }
+  .timeline-items { padding-left: 3.5rem; display: flex; flex-direction: column; gap: 0; }
+
+  .timeline-item {
+    display: flex; gap: 2rem;
+    padding: 2.5rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    position: relative;
+    transition: all 0.3s ease;
+  }
+  .timeline-item:hover { padding-left: 1rem; }
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -3.5rem; top: 2.75rem;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    border: 1px solid var(--cel);
+    background: var(--black);
+    transition: background 0.3s ease;
+  }
+  .timeline-item:hover::before { background: var(--cel); }
+
+  .t-year {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 1.5rem;
+    color: rgba(116,172,223,0.4);
+    min-width: 80px;
+    transition: color 0.3s ease;
+  }
+  .timeline-item:hover .t-year { color: var(--cel); }
+
+  .t-content { flex: 1; }
+  .t-role {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 1.6rem;
+    color: var(--white);
+    line-height: 1;
+    margin-bottom: 0.5rem;
+  }
+  .t-team {
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--cel);
+    margin-bottom: 0.75rem;
+  }
+  .t-desc {
+    font-size: 0.8rem;
+    line-height: 1.7;
+    color: rgba(255,255,255,0.35);
+  }
+
+  /* SOCIAL */
+  #social-section {
+    padding: 6rem 3rem;
+    position: relative;
+  }
+  .social-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+    margin-top: 3rem;
+  }
+  .social-card {
+    aspect-ratio: 1;
+    background: var(--mid);
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    border-radius: 2px;
+  }
+  .social-card .sc-inner {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 1rem;
+    transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+    background: linear-gradient(135deg, #0d1a2e 0%, var(--mid) 100%);
+  }
+  .social-card:hover .sc-inner { transform: scale(1.05); }
+  .social-card .sc-overlay {
+    position: absolute; inset: 0;
+    background: rgba(116,172,223,0.08);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    border: 1px solid rgba(116,172,223,0.3);
+  }
+  .social-card:hover .sc-overlay { opacity: 1; }
+  .social-card .sc-num {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 3.5rem;
+    color: rgba(116,172,223,0.15);
+    line-height: 1;
+  }
+  .social-card .sc-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.25);
+  }
+
+  /* FOOTER */
+  footer {
+    padding: 2.5rem 3rem 1.5rem;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    position: relative;
+  }
+  .footer-top {
+    display: flex; justify-content: space-between; align-items: flex-end;
+    margin-bottom: 2rem;
+  }
+  .footer-name {
+    font-family: 'Bebas Neue', cursive;
+    font-size: clamp(3rem, 8vw, 8rem);
+    line-height: 0.8;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(255,255,255,0.08);
+    user-select: none;
+  }
+  .footer-info { text-align: right; }
+  .footer-info a {
+    display: block;
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--cel);
+    text-decoration: none;
+    margin-bottom: 0.5rem;
+    transition: opacity 0.3s ease;
+  }
+  .footer-info a:hover { opacity: 0.6; }
+  .footer-bottom {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    color: rgba(255,255,255,0.2);
+  }
+
+  .cel-line {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(to right, transparent, var(--cel), transparent);
+  }
+
+  /* SCROLL REVEAL */
+  .reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  .reveal-left {
+    opacity: 0;
+    transform: translateX(-30px);
+    transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  .reveal-left.visible { opacity: 1; transform: translateX(0); }
+
+  /* GLITCH effect on name hover */
+  .glitch { position: relative; }
+  .glitch:hover::before, .glitch:hover::after {
+    content: attr(data-text);
+    position: absolute; top: 0; left: 0;
+    font-family: inherit; font-size: inherit; font-weight: inherit;
+    width: 100%;
+    -webkit-text-stroke: inherit;
+    color: inherit;
+    animation: glitch1 0.3s steps(2) infinite;
+  }
+  .glitch:hover::before { color: var(--cel); clip: rect(0, 900px, 20px, 0); }
+  .glitch:hover::after { color: rgba(255,100,100,0.5); clip: rect(20px, 900px, 60px, 0); }
+  @keyframes glitch1 {
+    0% { transform: translate(2px, 0); }
+    50% { transform: translate(-2px, 0); }
+    100% { transform: translate(2px, 0); }
+  }
+
+  /* Alpine F1 car SVG colors */
+  .car-body { fill: #0090D0; }
+  .car-accent { fill: #FF87BC; }
+  .car-dark { fill: #001F5B; }
+  .car-white { fill: #FFFFFF; }
+  .car-cel { fill: var(--cel); }
+
+  /* Responsive */
+  /* 3D PERSPECTIVE ANIMATIONS */
+  .hero-image-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-end;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 1;
+  }
+  .hero-profile-img {
+    height: 110%;
+    width: auto;
+    object-fit: cover;
+    mask-image: linear-gradient(to right, transparent 0%, black 50%, black 100%),
+                linear-gradient(to top, transparent 0%, black 30%);
+    mask-composite: intersect;
+    opacity: 0;
+    transform: translateX(100px) scale(1.1);
+    animation: heroImgReveal 2s cubic-bezier(0.23, 1, 0.32, 1) 2s forwards;
+    filter: drop-shadow(-20px 0 50px rgba(0,0,0,0.8)) contrast(1.1);
+  }
+  @keyframes heroImgReveal {
+    to { opacity: 0.8; transform: translateX(0) scale(1); }
+  }
+
+  .car-img-wrapper {
+    position: relative;
+    width: 100%;
+    transform: perspective(2000px) rotateY(-10deg);
+    transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+    transform-style: preserve-3d;
+    cursor: grab;
+  }
+  .car-img-wrapper:active { cursor: grabbing; }
+
+  /* Reflective Floor Effect */
+  .car-img-wrapper::after {
+    content: '';
+    position: absolute;
+    bottom: -10%; left: 0; width: 100%; height: 40%;
+    background: inherit;
+    background-image: inherit;
+    transform: scaleY(-0.5) translateY(20%);
+    filter: blur(8px) brightness(0.4);
+    opacity: 0.2;
+    pointer-events: none;
+    mask-image: linear-gradient(to top, transparent 20%, black 100%);
+    z-index: -1;
+  }
+  
+  .car-hd-img {
+    width: 100%;
+    height: auto;
+    border-radius: 4px;
+    filter: drop-shadow(0 20px 60px rgba(0,0,0,0.8));
+    user-select: none;
+    pointer-events: none;
+  }
+
+  .car-glow {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 130%; height: 70%;
+    background: radial-gradient(ellipse at center, rgba(116, 172, 223, 0.1) 0%, transparent 70%);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  /* Scanner HUD Overlay */
+  .scanner-grid {
+    position: absolute;
+    inset: -5% -10%;
+    pointer-events: none;
+    background: 
+      linear-gradient(rgba(116,172,223,0.05) 1px, transparent 1px) 0 0 / 50px 50px,
+      linear-gradient(90deg, rgba(116,172,223,0.05) 1px, transparent 1px) 0 0 / 50px 50px;
+    opacity: 0.3;
+    mask-image: radial-gradient(circle at center, black 30%, transparent 70%);
+  }
+  
+  .rotation-hint {
+    position: absolute;
+    bottom: -3rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.55rem;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--pink);
+    opacity: 0.6;
+    animation: fadeInOut 2s ease-in-out infinite;
+  }
+  @keyframes fadeInOut { 0%, 100% { opacity: 0.2; } 50% { opacity: 0.8; } }
+
+  /* HOTSPOTS */
+  .hotspot {
+    position: absolute;
+    z-index: 100;
+    pointer-events: auto;
+  }
+  .hotspot-dot {
+    width: 14px; height: 14px;
+    background: var(--pink);
+    border-radius: 50%;
+    border: 2px solid var(--white);
+    box-shadow: 0 0 20px var(--pink);
+    cursor: pointer;
+    animation: hotPulse 2s ease-in-out infinite;
+  }
+  @keyframes hotPulse {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,135,188,0.6); }
+    70% { transform: scale(1.15); box-shadow: 0 0 0 12px rgba(255,135,188,0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,135,188,0); }
+  }
+  .hotspot-content {
+    position: absolute;
+    bottom: 25px;
+    left: 50%;
+    transform: translate(-50%, 10px);
+    background: rgba(10,10,10,0.9);
+    padding: 0.8rem 1.2rem;
+    border: 1px solid var(--pink);
+    border-radius: 4px;
+    font-size: 0.65rem;
+    white-space: nowrap;
+    color: var(--white);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+    pointer-events: none;
+    backdrop-filter: blur(8px);
+  }
+  .hotspot:hover .hotspot-content { opacity: 1; transform: translate(-50%, 0); }
+
+  /* ADVANCED IMAGE ANIMATIONS (Excluding Hero & Onboard) */
+  .photo-card {
+    transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.5s ease;
+    transform-style: preserve-3d;
+    perspective: 1000px;
+    overflow: visible; /* To allow the tilt pop */
+    cursor: pointer;
+  }
+  .photo-card img {
+    transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1), filter 0.8s ease;
+    pointer-events: none;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+  }
+  .photo-card.reveal-active img {
+    animation: liquidReveal 1.5s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+  }
+  @keyframes liquidReveal {
+    0% { clip-path: polygon(0 0, 0 0, 0 100%, 0 100%); transform: scale(1.2) translateX(-20px); filter: blur(10px); }
+    100% { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); transform: scale(1) translateX(0); filter: blur(0); }
+  }
+  
+  .photo-card:hover { z-index: 50; }
+  .photo-card:hover img { transform: translateZ(50px) scale(1.05); }
+  .photo-card:hover .overlay { transform: translateZ(80px); opacity: 1; }
+
+  /* VIDEO SECTION */
+  #video-section {
+    padding: 6rem 3rem;
+    background: linear-gradient(to bottom, var(--black), #0a111a);
+  }
+  .video-container {
+    width: 100%;
+    aspect-ratio: 16/9;
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 40px 100px rgba(0,0,0,0.6);
+  }
+  .video-card-link { display: block; position: relative; width: 100%; height: 100%; text-decoration: none; overflow: hidden; border-radius: 4px; border: 1px solid rgba(116,172,223,0.3); }
+  .video-thumbnail { width: 100%; height: 100%; object-fit: cover; transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1); }
+  .video-overlay-player { position: absolute; inset: 0; background: linear-gradient(0deg, rgba(0,0,0,0.8) 0%, transparent 60%); display: flex; align-items: center; justify-content: center; transition: background 0.3s ease; }
+  .video-card-link:hover .video-overlay-player { background: rgba(0,0,0,0.4); }
+  .video-card-link:hover .video-thumbnail { transform: scale(1.1); }
+  .play-btn-pulse {
+    width: 100px; height: 100px;
+    background: var(--pink);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 50px var(--pink);
+    transition: all 0.3s ease;
+    animation: playPulse 2s infinite;
+  }
+  @keyframes playPulse { 0% { box-shadow: 0 0 0 0 rgba(255,135,188,0.7); } 70% { box-shadow: 0 0 0 30px rgba(255,135,188,0); } 100% { box-shadow: 0 0 0 0 rgba(255,135,188,0); } }
+  .play-icon-f1 { font-size: 2rem; color: var(--black); margin-left: 5px; }
+  .video-cta-text {
+    position: absolute; bottom: 3rem; left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Bebas Neue', cursive;
+    font-size: 1.5rem; letter-spacing: 0.2em;
+    color: var(--white);
+    text-shadow: 0 0 20px rgba(0,0,0,0.8);
+  }
+  .video-card-link:hover .play-btn-pulse { transform: scale(1.2); background: var(--white); box-shadow: 0 0 80px var(--white); }
+
+  /* SCHEDULE & STANDINGS */
+  #schedule, #standings { padding: 6rem 3rem; position: relative; }
+  .schedule-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 3rem; }
+  .race-card {
+    background: var(--mid);
+    padding: 2.5rem 2rem;
+    border-radius: 4px;
+    border-left: 4px solid var(--cel);
+    transition: transform 0.3s ease, background 0.3s ease;
+    display: flex; flex-direction: column; gap: 1rem;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+  }
+  .track-hint {
+    margin-top: auto;
+    font-size: 0.55rem;
+    color: var(--pink);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+  }
+  .race-card:hover .track-hint { opacity: 1; text-decoration: underline; }
+
+  /* MODAL */
+  .modal {
+    position: fixed;
+    z-index: 2000;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.95);
+    display: none;
+    align-items: center; justify-content: center;
+    backdrop-filter: blur(10px);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .modal.visible { display: flex; opacity: 1; }
+  .modal-content {
+    background: var(--mid);
+    border: 1px solid var(--cel);
+    padding: 3rem;
+    width: 90%; max-width: 600px;
+    position: relative;
+    text-align: center;
+    border-radius: 4px;
+  }
+  .close-modal {
+    position: absolute; top: 1rem; right: 1.5rem;
+    font-size: 2rem; cursor: pointer; color: var(--cel);
+  }
+  .track-img-container { margin: 2rem 0; background: rgba(255,255,255,0.05); padding: 2rem; border-radius: 4px; }
+  .track-img-container img { 
+    width: 100%; height: auto; 
+    filter: invert(1) brightness(1.5) drop-shadow(0 0 10px var(--cel)); 
+    opacity: 0; transition: opacity 0.5s ease;
+  }
+  .track-img-container img.loaded { opacity: 1; }
+  #modalRaceName { font-family: 'Bebas Neue', cursive; font-size: 3rem; color: var(--white); }
+  .track-stats-mini { display: flex; justify-content: center; gap: 2rem; margin-top: 1rem; }
+  .mini-stat { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.4); }
+  .mini-stat span { color: var(--cel); font-weight: 600; display: block; font-size: 1rem; }
+  .race-card.next { background: linear-gradient(135deg, #1a2535 0%, var(--mid) 100%); border-left-color: var(--white); }
+  .race-card:hover { transform: translateY(-5px); background: #252525; }
+  .race-date { font-family: 'Bebas Neue', cursive; font-size: 1.2rem; color: var(--pink); letter-spacing: 0.1em; }
+  .race-name { font-family: 'Bebas Neue', cursive; font-size: 2rem; display: block; line-height: 1; }
+  .race-track { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.2em; color: rgba(255,255,255,0.4); }
+  .status-tag { position: absolute; top: 1rem; right: 1rem; font-size: 0.5rem; background: var(--cel); color: var(--black); padding: 0.2rem 0.6rem; border-radius: 10px; font-weight: 600; text-transform: uppercase; }
+
+  /* NEW STANDINGS SYSTEM */
+  .standings-tabs {
+    display: flex;
+    justify-content: center;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    margin-bottom: 2rem;
+  }
+  .tab-btn {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.4);
+    padding: 1.5rem 3rem;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    cursor: pointer;
+    position: relative;
+    transition: color 0.3s ease;
+  }
+  .tab-btn.active { color: var(--white); }
+  .tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; width: 100%; height: 2px;
+    background: var(--white);
+  }
+  
+  .standings-subtitle {
+    font-size: 1.2rem;
+    color: var(--white);
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+  }
+  
+  .standings-table-container { display: none; }
+  .standings-table-container.active { display: block; }
+  
+  .standings-table {
+    width: 100%;
+    border-collapse: collapse;
+    color: rgba(255,255,255,0.7);
+  }
+  .standings-table th {
+    text-align: left;
+    font-size: 0.6rem;
+    padding: 1rem 0;
+    font-weight: 400;
+    color: rgba(255,255,255,0.3);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .col-pos { width: 50px; }
+  .col-stat { width: 100px; text-align: right !important; }
+  
+  .pilot-row { border-bottom: 1px solid rgba(255,255,255,0.05); transition: background 0.3s; }
+  .pilot-row:hover { background: rgba(255,255,255,0.02); }
+  .pilot-row td { padding: 1.2rem 0; font-size: 0.8rem; }
+  .pos { font-family: 'Inter', sans-serif; font-weight: 600; color: var(--white); }
+  .stat { text-align: right; color: var(--white); }
+  
+  .pilot-name { display: flex; align-items: center; gap: 1rem; }
+  .flag-icon { font-size: 1.2rem; border-radius: 2px; }
+  .name-box { display: flex; flex-direction: column; }
+  .main-n { color: var(--white); font-weight: 500; }
+  .team-n { font-size: 0.65rem; color: rgba(255,255,255,0.4); margin-top: 2px; }
+  
+  .highlight-me { background: rgba(116,172,223,0.05); color: var(--cel) !important; }
+  .highlight-me .main-n { color: var(--cel); }
+  
+  /* Actions */
+  .standings-actions { text-align: center; margin-top: 2rem; }
+  .show-more-btn {
+    background: none;
+    border: none;
+    color: var(--white);
+    font-size: 0.75rem;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    opacity: 0.6;
+    transition: opacity 0.3s;
+  }
+  .show-more-btn:hover { opacity: 1; }
+  .arrow-up { font-size: 1rem; }
+  .hidden { display: none !important; }
+
+  @media (max-width: 768px) {
+    nav { padding: 1rem 1.5rem; }
+    .nav-links { display: none; }
+    .hero-content { padding: 0 1.5rem 3rem; }
+    .hero-stats { display: none; }
+    .hero-profile-img { height: 80%; }
+    .stats-row { grid-template-columns: repeat(2, 1fr); margin: 4rem 1.5rem; }
+    .car-inner { flex-direction: column; }
+    .car-content { max-width: 100%; }
+    .car-visual { position: relative; right: auto; top: auto; transform: none; width: 100%; margin-top: 3rem; }
+    #quote-section, #photos, #car-section, #video-section, #schedule, #standings, #timeline, #social-section { padding: 4rem 1.5rem; }
+    .photo-grid { grid-template-columns: 1fr 1fr; }
+    .photo-card:first-child { grid-column: span 2; }
+    .social-grid { grid-template-columns: repeat(2, 1fr); }
+    .footer-top { flex-direction: column; gap: 2rem; }
+    .footer-info { text-align: left; }
+  }
+</style>
+</head>
+<body>
+
+<!-- CURSOR -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="loader-num">43</div>
+  <div class="loader-bar"></div>
+  <div class="loader-text">Cargando — Franco Colapinto</div>
+</div>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="#" class="nav-logo">FC<span>43</span></a>
+  <ul class="nav-links">
+    <li><a href="#photos">En Pista</a></li>
+    <li><a href="#car-section">El Auto</a></li>
+    <li><a href="#timeline">Carrera</a></li>
+    <li><a href="#social-section">Social</a></li>
+  </ul>
+  <span class="nav-num">#43</span>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-stripes"></div>
+  <div class="hero-image-overlay">
+    <img src="img/inicio.jpg" alt="Franco Colapinto Alpine BWT" class="hero-profile-img">
+  </div>
+  <div class="hero-number-bg">43</div>
+
+  <!-- Speed lines -->
+  <div class="speed-lines" id="speedLines"></div>
+
+  <!-- Argentine Flag -->
+  <div class="hero-flag">
+    <div class="flag-strip cel"></div>
+    <div class="flag-strip white"><span class="sun">☀</span></div>
+    <div class="flag-strip cel"></div>
+  </div>
+
+  <div class="hero-content">
+    <div class="hero-tag">Piloto de Fórmula 1 · Argentina</div>
+    <h1 class="hero-name">
+      <span class="first">FRANCO</span>
+      <span class="last">COLAPINTO</span>
+    </h1>
+    <p class="hero-subtitle">BWT Alpine F1 Team · <span>2025</span> · Piloto Oficial</p>
+  </div>
+
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <span class="val">43</span>
+      <span class="label">Número de Piloto</span>
+    </div>
+    <div class="hero-stat">
+      <span class="val">22</span>
+      <span class="label">Años</span>
+    </div>
+    <div class="hero-stat">
+      <span class="val">ARG</span>
+      <span class="label">Nacionalidad</span>
+    </div>
+  </div>
+
+  <div class="hero-scroll">
+    <div class="hero-scroll-line"></div>
+    <span>Scroll</span>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-wrapper">
+  <div class="marquee-track" id="marqueeTrack">
+    <div class="marquee-item">Franco Colapinto <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Formula 1 <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Argentina <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Alpine F1 Team <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Número 43 <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Vamos Franco <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Franco Colapinto <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Formula 1 <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Argentina <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Alpine F1 Team <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Número 43 <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Vamos Franco <span class="marquee-dot"></span></div>
+  </div>
+</div>
+
+<!-- QUOTE -->
+<section id="quote-section">
+  <div class="quote-label reveal">Mensaje de Franco</div>
+  <h2 class="quote-text reveal">
+    Desde pequeño soñé con estar <span class="highlight">aquí.</span><br>
+    Cada vuelta, cada <span class="highlight">sacrificio,</span><br>
+    cada kilómetro recorrido<br>
+    valió la <span class="highlight">pena.</span>
+  </h2>
+  <div class="quote-attr reveal">
+    <div class="quote-attr-line"></div>
+    <span class="quote-attr-text">Franco Colapinto — Piloto de Fórmula 1</span>
+  </div>
+</section>
+
+<!-- STATS ROW -->
+<div class="stats-row">
+  <div class="stat-box reveal">
+    <span class="stat-num">23<span class="unit">pts</span></span>
+    <span class="stat-desc">Puntos en F1</span>
+    <span class="stat-year">Williams 2024</span>
+  </div>
+  <div class="stat-box reveal">
+    <span class="stat-num">5<span class="unit">th</span></span>
+    <span class="stat-desc">Mejor resultado</span>
+    <span class="stat-year">GP USA 2024</span>
+  </div>
+  <div class="stat-box reveal">
+    <span class="stat-num">12</span>
+    <span class="stat-desc">Grandes premios</span>
+    <span class="stat-year">Temporada 2024</span>
+  </div>
+  <div class="stat-box reveal">
+    <span class="stat-num">43</span>
+    <span class="stat-desc">Número de piloto</span>
+    <span class="stat-year">Permanente</span>
+  </div>
+</div>
+
+<!-- PHOTOS -->
+<section id="photos">
+  <div class="section-header reveal">
+    <h2 class="section-title"><span class="filled">EN</span><br>PISTA</h2>
+    <a href="#" class="section-link">Ver más →</a>
+  </div>
+
+  <div class="photo-grid">
+    <div class="photo-card reveal photo-main">
+      <img src="img/Franco Colapinto · BWT Alpine.webp" alt="Franco Colapinto Portrait">
+      <div class="overlay"><span class="photo-label">Franco Colapinto · BWT Alpine</span></div>
+    </div>
+    <div class="photo-card reveal">
+      <img src="img/Debut Histórico · Monza.jpg" alt="Monza Debut Williams">
+      <div class="overlay"><span class="photo-label">Debut Histórico · Monza</span></div>
+    </div>
+    <div class="photo-card reveal">
+      <img src="img/Temporada 2025 · Alpine.webp" alt="Alpine A524 Action">
+      <div class="overlay"><span class="photo-label">Temporada 2025 · Alpine</span></div>
+    </div>
+    <div class="photo-card reveal">
+       <img src="img/Full Speed · Baku GP.jpg" alt="Pit Stop Action">
+      <div class="overlay"><span class="photo-label">Full Speed · Baku GP</span></div>
+    </div>
+    <div class="photo-card reveal">
+      <img src="img/Orgullo Argentino · F1.webp" alt="Argentina Pride">
+      <div class="overlay"><span class="photo-label">Orgullo Argentino · F1</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- RACE SCHEDULE -->
+<section id="schedule">
+  <div class="section-header reveal">
+    <h2 class="section-title"><span class="filled">PRÓXIMAS</span><br>CARRERAS</h2>
+  </div>
+  <div class="schedule-grid reveal">
+    <div class="race-card next" data-track="pista/GP%20de%20Bahr%C3%A9in.svg" data-laps="57" data-length="5.412">
+      <div class="race-date">Abril 10 — 12</div>
+      <div class="race-info">
+        <span class="race-name">GP de Bahréin</span>
+        <span class="race-track">Circuito Internacional de Sakhir</span>
+      </div>
+      <div class="status-tag">Siguiente</div>
+      <div class="track-hint">Ver pista →</div>
+    </div>
+    <div class="race-card" data-track="pista/GP%20de%20Arabia%20Saudita.svg" data-laps="50" data-length="6.174">
+      <div class="race-date">Abril 17 — 19</div>
+      <div class="race-info">
+        <span class="race-name">GP de Arabia Saudita</span>
+        <span class="race-track">Circuito de Corniche de Yeda</span>
+      </div>
+      <div class="track-hint">Ver pista →</div>
+    </div>
+    <div class="race-card" data-track="pista/GP%20de%20Miami.svg" data-laps="57" data-length="5.412">
+      <div class="race-date">Mayo 1 — 3</div>
+      <div class="race-info">
+        <span class="race-name">GP de Miami</span>
+        <span class="race-track">Autódromo Internacional de Miami</span>
+      </div>
+      <div class="track-hint">Ver pista →</div>
+    </div>
+    <div class="race-card" data-track="pista/GP%20de%20Canad%C3%A1.svg" data-laps="70" data-length="4.361">
+      <div class="race-date">Mayo 22 — 24</div>
+      <div class="race-info">
+        <span class="race-name">GP de Canadá</span>
+        <span class="race-track">Circuito Gilles Villeneuve</span>
+      </div>
+      <div class="track-hint">Ver pista →</div>
+    </div>
+  </div>
+</section>
+
+<!-- TRACK MODAL -->
+<div id="trackModal" class="modal">
+  <div class="modal-content">
+    <span class="close-modal">&times;</span>
+    <h3 id="modalRaceName">GP DE BAHRÉIN</h3>
+    <div class="track-img-container">
+      <img id="trackImg" src="" alt="Track Layout">
+    </div>
+    <div class="track-stats-mini">
+      <div class="mini-stat">Vueltas: <span id="modalLaps">57</span></div>
+      <div class="mini-stat">Longitud: <span id="modalLength">5.412 KM</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- CAR SECTION -->
+</section>
+
+<!-- VIDEO SECTION -->
+<section id="video-section">
+  <div class="section-header reveal">
+    <h2 class="section-title"><span class="filled">ONBOARD</span><br>EXPERIENCE</h2>
+  </div>
+  <div class="video-container reveal">
+    <a href="https://www.youtube.com/shorts/e_rpw8JX0-A" target="_blank" class="video-card-link">
+      <img src="https://img.youtube.com/vi/e_rpw8JX0-A/maxresdefault.jpg" alt="Colapinto Onboard" class="video-thumbnail">
+      <div class="video-overlay-player">
+        <div class="play-btn-pulse">
+          <div class="play-icon-f1">▶</div>
+        </div>
+        <span class="video-cta-text">VER EN YOUTUBE SHORTS</span>
+      </div>
+    </a>
+  </div>
+</section>
+  <div class="car-bg-text">A523</div>
+  <div class="car-inner">
+    <div class="car-content reveal-left">
+      <span class="car-tag">Alpine A524 · 2025</span>
+      <h2 class="car-title">La<br><span class="accent">Máquina</span><br>Azul</h2>
+      <p class="car-desc">El Alpine A524 es la herramienta de Franco en su primera temporada completa en la Fórmula 1. Con los colores celeste y rosa característicos del equipo francés, Colapinto busca dejar su huella en el campeonato.</p>
+
+      <div class="car-specs" id="carSpecs">
+        <div class="car-spec">
+          <span class="spec-label">Velocidad</span>
+          <div class="spec-bar"><div class="spec-fill" data-width="0.95"></div></div>
+          <span class="spec-val">340<span style="font-size:0.8rem">km/h</span></span>
+        </div>
+        <div class="car-spec">
+          <span class="spec-label">Aceleración</span>
+          <div class="spec-bar"><div class="spec-fill" data-width="0.9"></div></div>
+          <span class="spec-val">0→100<span style="font-size:0.6rem">2.5s</span></span>
+        </div>
+        <div class="car-spec">
+          <span class="spec-label">Fuerza G</span>
+          <div class="spec-bar"><div class="spec-fill" data-width="0.85"></div></div>
+          <span class="spec-val">5<span style="font-size:0.8rem">G</span></span>
+        </div>
+        <div class="car-spec">
+          <span class="spec-label">Potencia</span>
+          <div class="spec-bar"><div class="spec-fill" data-width="0.88"></div></div>
+          <span class="spec-val">1000<span style="font-size:0.6rem">cv</span></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="car-visual">
+        <div class="car-img-wrapper reveal" id="carViewer">
+          <div class="scanner-grid"></div>
+          <img src="img/Alpine A524 Franco Colapinto.webp" alt="Alpine A524 Franco Colapinto" class="car-hd-img">
+          <div class="car-glow"></div>
+          
+          <!-- Hotspots for 5D feel -->
+          <div class="hotspot" style="top: 30%; left: 15%;">
+            <div class="hotspot-dot"></div>
+            <div class="hotspot-content">TECNOLOGÍA DRS · ALERÓN ACTIVO</div>
+          </div>
+          <div class="hotspot" style="top: 60%; left: 52%;">
+            <div class="hotspot-dot"></div>
+            <div class="hotspot-content">CHASIS MONOCASCO · FIBRA DE CARBONO</div>
+          </div>
+          <div class="hotspot" style="top: 78%; left: 82%;">
+            <div class="hotspot-dot"></div>
+            <div class="hotspot-content">PIRELLI P-ZERO · COMPUESTO BLANDO</div>
+          </div>
+        </div>
+       <div class="rotation-hint">Click y Arrastra para girar el auto</div>
+    </div>
+  </div>
+</section>
+
+<!-- STANDINGS SECTION -->
+<section id="standings">
+  <div class="standings-tabs reveal">
+    <button class="tab-btn active" onclick="switchStandings('pilots', this)">PILOTOS</button>
+    <button class="tab-btn" onclick="switchStandings('teams', this)">CONSTRUCTORES</button>
+  </div>
+
+  <div class="standings-table-wrapper reveal">
+    <h3 class="standings-subtitle">Posiciones de 2026</h3>
+    
+    <!-- PILOTS TABLE -->
+    <div id="table-pilots" class="standings-table-container active">
+      <table class="standings-table">
+        <thead>
+          <tr>
+            <th class="col-pos">Pos.</th>
+            <th class="col-main">Piloto</th>
+            <th class="col-stat">Puntos</th>
+            <th class="col-stat">Triunfos</th>
+            <th class="col-stat">Podios</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="pilot-row"><td class="pos">1</td><td class="pilot-name"><span class="flag-icon">🇮🇹</span><div class="name-box"><span class="main-n">A. Antonelli</span><span class="team-n">Mercedes</span></div></td><td class="stat">72</td><td class="stat">2</td><td class="stat">3</td></tr>
+          <tr class="pilot-row"><td class="pos">2</td><td class="pilot-name"><span class="flag-icon">🇬🇧</span><div class="name-box"><span class="main-n">G. Russell</span><span class="team-n">Mercedes</span></div></td><td class="stat">63</td><td class="stat">1</td><td class="stat">2</td></tr>
+          <tr class="pilot-row"><td class="pos">3</td><td class="pilot-name"><span class="flag-icon">🇲🇨</span><div class="name-box"><span class="main-n">C. Leclerc</span><span class="team-n">Ferrari</span></div></td><td class="stat">49</td><td class="stat">0</td><td class="stat">2</td></tr>
+          <tr class="pilot-row"><td class="pos">4</td><td class="pilot-name"><span class="flag-icon">🇬🇧</span><div class="name-box"><span class="main-n">L. Hamilton</span><span class="team-n">Ferrari</span></div></td><td class="stat">41</td><td class="stat">0</td><td class="stat">1</td></tr>
+          <tr class="pilot-row"><td class="pos">5</td><td class="pilot-name"><span class="flag-icon">🇬🇧</span><div class="name-box"><span class="main-n">L. Norris</span><span class="team-n">McLaren</span></div></td><td class="stat">25</td><td class="stat">0</td><td class="stat">0</td></tr>
+          <tr class="pilot-row"><td class="pos">6</td><td class="pilot-name"><span class="flag-icon">🇦🇺</span><div class="name-box"><span class="main-n">O. Piastri</span><span class="team-n">McLaren</span></div></td><td class="stat">21</td><td class="stat">0</td><td class="stat">1</td></tr>
+          <tr class="pilot-row"><td class="pos">7</td><td class="pilot-name"><span class="flag-icon">🇬🇧</span><div class="name-box"><span class="main-n">O. Bearman</span><span class="team-n">Haas</span></div></td><td class="stat">17</td><td class="stat">0</td><td class="stat">0</td></tr>
+          <tr class="pilot-row"><td class="pos">8</td><td class="pilot-name"><span class="flag-icon">🇫🇷</span><div class="name-box"><span class="main-n">P. Gasly</span><span class="team-n">Alpine</span></div></td><td class="stat">15</td><td class="stat">0</td><td class="stat">0</td></tr>
+          <tr class="pilot-row"><td class="pos">9</td><td class="pilot-name"><span class="flag-icon">🇳🇱</span><div class="name-box"><span class="main-n">M. Verstappen</span><span class="team-n">Red Bull</span></div></td><td class="stat">12</td><td class="stat">0</td><td class="stat">0</td></tr>
+          <tr class="pilot-row"><td class="pos">10</td><td class="pilot-name"><span class="flag-icon">🇳🇿</span><div class="name-box"><span class="main-n">L. Lawson</span><span class="team-n">RB</span></div></td><td class="stat">10</td><td class="stat">0</td><td class="stat">0</td></tr>
+          <!-- Extra rows under Mostrar mas -->
+          <tr class="pilot-row extra-row hidden"><td class="pos">11</td><td class="pilot-name"><span class="flag-icon">🇬🇧</span><div class="name-box"><span class="main-n">A. Lindblad</span><span class="team-n">RB</span></div></td><td class="stat">4</td><td class="stat">0</td><td class="stat">0</td></tr>
+          <tr class="pilot-row extra-row hidden"><td class="pos">12</td><td class="pilot-name"><span class="flag-icon">🇫🇷</span><div class="name-box"><span class="main-n">I. Hadjar</span><span class="team-n">Red Bull</span></div></td><td class="stat">4</td><td class="stat">0</td><td class="stat">0</td></tr>
+          <tr class="pilot-row extra-row hidden"><td class="pos">13</td><td class="pilot-name"><span class="flag-icon">🇧🇷</span><div class="name-box"><span class="main-n">G. Bortoleto</span><span class="team-n">Audi</span></div></td><td class="stat">2</td><td class="stat">0</td><td class="stat">0</td></tr>
+          <tr class="pilot-row extra-row hidden"><td class="pos">14</td><td class="pilot-name"><span class="flag-icon">🇪🇸</span><div class="name-box"><span class="main-n">C. Sainz Jr.</span><span class="team-n">Williams</span></div></td><td class="stat">2</td><td class="stat">0</td><td class="stat">0</td></tr>
+          <tr class="pilot-row extra-row hidden"><td class="pos">15</td><td class="pilot-name"><span class="flag-icon">🇫🇷</span><div class="name-box"><span class="main-n">E. Ocon</span><span class="team-n">Haas</span></div></td><td class="stat">1</td><td class="stat">0</td><td class="stat">0</td></tr>
+          <tr class="pilot-row highlight-me"><td class="pos">16</td><td class="pilot-name"><span class="flag-icon">🇦🇷</span><div class="name-box"><span class="main-n">F. Colapinto</span><span class="team-n">Alpine</span></div></td><td class="stat">1</td><td class="stat">0</td><td class="stat">0</td></tr>
+          <tr class="pilot-row extra-row hidden"><td class="pos">17</td><td class="pilot-name"><span class="flag-icon">🇩🇪</span><div class="name-box"><span class="main-n">N. Hulkenberg</span><span class="team-n">Audi</span></div></td><td class="stat">0</td><td class="stat">0</td><td class="stat">0</td></tr>
+          <tr class="pilot-row extra-row hidden"><td class="pos">18</td><td class="pilot-name"><span class="flag-icon">🇹🇭</span><div class="name-box"><span class="main-n">A. Albon</span><span class="team-n">Williams</span></div></td><td class="stat">0</td><td class="stat">0</td><td class="stat">0</td></tr>
+          <tr class="pilot-row extra-row hidden"><td class="pos">19</td><td class="pilot-name"><span class="flag-icon">🇫🇮</span><div class="name-box"><span class="main-n">V. Bottas</span><span class="team-n">Cadillac</span></div></td><td class="stat">0</td><td class="stat">0</td><td class="stat">0</td></tr>
+          <tr class="pilot-row extra-row hidden"><td class="pos">20</td><td class="pilot-name"><span class="flag-icon">🇲🇽</span><div class="name-box"><span class="main-n">S. Perez</span><span class="team-n">Cadillac</span></div></td><td class="stat">0</td><td class="stat">0</td><td class="stat">0</td></tr>
+          <tr class="pilot-row extra-row hidden"><td class="pos">21</td><td class="pilot-name"><span class="flag-icon">🇪🇸</span><div class="name-box"><span class="main-n">F. Alonso</span><span class="team-n">Aston Martin</span></div></td><td class="stat">0</td><td class="stat">0</td><td class="stat">0</td></tr>
+          <tr class="pilot-row extra-row hidden"><td class="pos">22</td><td class="pilot-name"><span class="flag-icon">🇨🇦</span><div class="name-box"><span class="main-n">L. Stroll</span><span class="team-n">Aston Martin</span></div></td><td class="stat">0</td><td class="stat">0</td><td class="stat">0</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- TEAMS TABLE -->
+    <div id="table-teams" class="standings-table-container">
+      <table class="standings-table">
+        <thead>
+          <tr>
+            <th class="col-pos">Pos.</th>
+            <th class="col-main">Constructor</th>
+            <th class="col-stat">Puntos</th>
+            <th class="col-stat">Triunfos</th>
+            <th class="col-stat">Podios</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="pilot-row"><td class="pos">1</td><td class="pilot-name"><span class="main-n">Mercedes</span></td><td class="stat">135</td><td class="stat">3</td><td class="stat">5</td></tr>
+          <tr class="pilot-row"><td class="pos">2</td><td class="pilot-name"><span class="main-n">Ferrari</span></td><td class="stat">90</td><td class="stat">0</td><td class="stat">3</td></tr>
+          <tr class="pilot-row"><td class="pos">3</td><td class="pilot-name"><span class="main-n">McLaren</span></td><td class="stat">46</td><td class="stat">0</td><td class="stat">1</td></tr>
+          <tr class="pilot-row"><td class="pos">4</td><td class="pilot-name"><span class="main-n">Haas</span></td><td class="stat">18</td><td class="stat">0</td><td class="stat">0</td></tr>
+          <tr class="pilot-row highlight-me"><td class="pos">5</td><td class="pilot-name"><span class="main-n">Alpine</span></td><td class="stat">16</td><td class="stat">0</td><td class="stat">0</td></tr>
+          <tr class="pilot-row"><td class="pos">6</td><td class="pilot-name"><span class="main-n">Red Bull</span></td><td class="stat">16</td><td class="stat">0</td><td class="stat">0</td></tr>
+          <tr class="pilot-row"><td class="pos">7</td><td class="pilot-name"><span class="main-n">RB</span></td><td class="stat">14</td><td class="stat">0</td><td class="stat">0</td></tr>
+          <tr class="pilot-row"><td class="pos">8</td><td class="pilot-name"><span class="main-n">Audi</span></td><td class="stat">2</td><td class="stat">0</td><td class="stat">0</td></tr>
+          <tr class="pilot-row"><td class="pos">9</td><td class="pilot-name"><span class="main-n">Williams</span></td><td class="stat">2</td><td class="stat">0</td><td class="stat">0</td></tr>
+          <tr class="pilot-row"><td class="pos">10</td><td class="pilot-name"><span class="main-n">Cadillac</span></td><td class="stat">0</td><td class="stat">0</td><td class="stat">0</td></tr>
+          <tr class="pilot-row"><td class="pos">11</td><td class="pilot-name"><span class="main-n">Aston Martin</span></td><td class="stat">0</td><td class="stat">0</td><td class="stat">0</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="standings-footer">
+      <button class="show-more-btn" onclick="toggleExpandStandings(this)">
+        <span class="arrow-up">▴</span>
+        <span class="label-text">Mostrar más</span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- TIMELINE -->
+<section id="timeline">
+  <div class="section-header reveal">
+    <h2 class="section-title"><span class="filled">MI</span><br>CARRERA</h2>
+  </div>
+  <div class="timeline-track">
+    <div class="timeline-line"></div>
+    <div class="timeline-items">
+      <div class="timeline-item reveal">
+        <span class="t-year">2025</span>
+        <div class="t-content">
+          <div class="t-role">Piloto Titular</div>
+          <div class="t-team">Alpine F1 Team · BWT Alpine</div>
+          <div class="t-desc">Primera temporada completa en la F1. Colapinto se une al equipo francés Alpine como piloto titular, marcando un hito histórico para el automovilismo argentino.</div>
+        </div>
+      </div>
+      <div class="timeline-item reveal">
+        <span class="t-year">2024</span>
+        <div class="t-content">
+          <div class="t-role">Debut en Formula 1</div>
+          <div class="t-team">Williams Racing · GP Italia</div>
+          <div class="t-desc">Debut histórico en Monza sustituyendo a Logan Sargeant. En 12 carreras acumuló 23 puntos para el equipo, con un 5.º puesto como mejor resultado en el GP de EE.UU. y Gran Bretaña.</div>
+        </div>
+      </div>
+      <div class="timeline-item reveal">
+        <span class="t-year">2023</span>
+        <div class="t-content">
+          <div class="t-role">Fórmula 2 · Piloto Reserva</div>
+          <div class="t-team">MP Motorsport · Williams F1</div>
+          <div class="t-desc">Temporada completa en la Fórmula 2 con el equipo MP Motorsport, mientras se desarrollaba como piloto reserva del equipo Williams en la Fórmula 1.</div>
+        </div>
+      </div>
+      <div class="timeline-item reveal">
+        <span class="t-year">2022</span>
+        <div class="t-content">
+          <div class="t-role">Fórmula 3 · Campeón</div>
+          <div class="t-team">Prema Racing</div>
+          <div class="t-desc">Campeón del Campeonato de Fórmula 3 de la FIA con el equipo Prema, demostrando su talento excepcional y acelerando su camino hacia la máxima categoría.</div>
+        </div>
+      </div>
+      <div class="timeline-item reveal">
+        <span class="t-year">2019</span>
+        <div class="t-content">
+          <div class="t-role">Inicio en Europa</div>
+          <div class="t-team">Fórmula 4 · España & Alemania</div>
+          <div class="t-desc">Salto al automovilismo europeo, compitiendo en la Fórmula 4 española y alemana, comenzando su ascenso meteórico por las categorías de base.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SOCIAL -->
+<section id="social-section">
+  <div class="section-header reveal">
+    <h2 class="section-title"><span class="filled">REDES</span><br>SOCIALES</h2>
+    <a href="#" class="section-link">Seguir a Franco →</a>
+  </div>
+
+  <div class="social-grid">
+    <a href="https://www.instagram.com/francolapinto/" target="_blank" class="social-card reveal">
+      <div class="sc-inner">
+        <div class="sc-num">IG</div>
+        <div class="sc-label">@francolapinto</div>
+      </div>
+      <div class="sc-overlay"></div>
+    </a>
+    <a href="https://www.tiktok.com/@francolapinto" target="_blank" class="social-card reveal">
+      <div class="sc-inner">
+        <div class="sc-num">TK</div>
+        <div class="sc-label">@francolapinto</div>
+      </div>
+      <div class="sc-overlay"></div>
+    </a>
+    <a href="https://www.youtube.com/@FrancoColapintoOfficial" target="_blank" class="social-card reveal">
+      <div class="sc-inner">
+        <div class="sc-num">YT</div>
+        <div class="sc-label">Franco Colapinto</div>
+      </div>
+      <div class="sc-overlay"></div>
+    </a>
+    <a href="https://x.com/FranColapinto" target="_blank" class="social-card reveal">
+      <div class="sc-inner">
+        <div class="sc-num">X</div>
+        <div class="sc-label">@FranColapinto</div>
+      </div>
+      <div class="sc-overlay"></div>
+    </a>
+    <div class="social-card reveal">
+      <div class="sc-inner">
+        <div class="sc-num" style="font-size:2rem">43</div>
+        <div class="sc-label">Piloto Oficial</div>
+      </div>
+      <div class="sc-overlay"></div>
+    </div>
+    <div class="social-card reveal">
+      <div class="sc-inner">
+        <div class="sc-num" style="font-size:2rem; color:rgba(116,172,223,0.3)">ARG</div>
+        <div class="sc-label">Orgullo Argentino</div>
+      </div>
+      <div class="sc-overlay"></div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <div class="footer-name">FC<br>43</div>
+    <div class="footer-info">
+      <a href="mailto:contact@francocolapinto.com">Contacto de Negocio</a>
+      <a href="https://linkedin.com/in/francocolapinto" target="_blank">LinkedIn Profesional</a>
+      <a href="#">Privacidad</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 Franco Colapinto. Todos los derechos reservados.</span>
+    <span>Piloto de Fórmula 1 · Argentina</span>
+  </div>
+  <div class="cel-line"></div>
+</footer>
+
+<script>
+// CURSOR
+const cursor = document.getElementById('cursor');
+const cursorRing = document.getElementById('cursorRing');
+let mx = 0, my = 0, rx = 0, ry = 0;
+
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  cursor.style.left = mx + 'px';
+  cursor.style.top = my + 'px';
+});
+
+const animRing = () => {
+  rx += (mx - rx) * 0.12;
+  ry += (my - ry) * 0.12;
+  cursorRing.style.left = rx + 'px';
+  cursorRing.style.top = ry + 'px';
+  requestAnimationFrame(animRing);
+};
+animRing();
+
+document.querySelectorAll('a, button, .photo-card, .social-card, .stat-box').forEach(el => {
+  el.addEventListener('mouseenter', () => { cursor.classList.add('hover'); cursorRing.classList.add('hover'); });
+  el.addEventListener('mouseleave', () => { cursor.classList.remove('hover'); cursorRing.classList.remove('hover'); });
+});
+
+// LOADER
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.getElementById('loader').classList.add('hidden');
+  }, 2200);
+});
+
+// NAV scroll
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 80);
+});
+
+// SPEED LINES
+const linesEl = document.getElementById('speedLines');
+for (let i = 0; i < 8; i++) {
+  const line = document.createElement('div');
+  line.className = 'speed-line';
+  const top = 20 + Math.random() * 60;
+  const duration = 2 + Math.random() * 3;
+  const delay = Math.random() * 4;
+  const width = 100 + Math.random() * 200;
+  line.style.cssText = `top:${top}%;width:${width}px;animation-duration:${duration}s;animation-delay:${delay}s;opacity:${0.3 + Math.random()*0.4}`;
+  linesEl.appendChild(line);
+}
+
+// SCROLL REVEAL
+const reveals = document.querySelectorAll('.reveal, .reveal-left');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+reveals.forEach(el => observer.observe(el));
+
+// SPEC BARS ANIMATION
+const specObserver = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.querySelectorAll('.spec-fill').forEach(fill => {
+        const w = parseFloat(fill.dataset.width);
+        fill.style.transform = `scaleX(${w})`;
+        fill.classList.add('animated');
+      });
+    }
+  });
+}, { threshold: 0.3 });
+const carSpecs = document.getElementById('carSpecs');
+if (carSpecs) specObserver.observe(carSpecs);
+
+// COUNTER ANIMATION
+function animateCounter(el, target, suffix='') {
+  let start = 0;
+  const step = target / 60;
+  const timer = setInterval(() => {
+    start += step;
+    if (start >= target) { start = target; clearInterval(timer); }
+    el.querySelector('.stat-num').childNodes[0].textContent = Math.floor(start);
+  }, 16);
+}
+
+const statsObserver = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      statsObserver.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.5 });
+
+  // Smoother 3D Tilt
+  document.querySelectorAll('.photo-card, .social-card, .stat-box').forEach(card => {
+    card.addEventListener('mousemove', e => {
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const xc = rect.width / 2;
+      const yc = rect.height / 2;
+      const dx = (x - xc) / 20;
+      const dy = (y - yc) / 20;
+      card.style.transform = `perspective(2000px) rotateX(${-dy}deg) rotateY(${dx}deg) translateY(-10px) scale(1.02)`;
+      card.style.boxShadow = `${-dx * 2}px ${-dy * 2}px 40px rgba(116,172,223,0.3)`;
+    });
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = 'perspective(2000px) rotateX(0) rotateY(0) translateY(0) scale(1)';
+      card.style.boxShadow = 'none';
+    });
+  });
+
+  // 5D INTERACTIVE DRAG ROTATION
+  let isDragging = false;
+  let startX, startY;
+  let rotationY = -10;
+  let rotationX = 0;
+  const carViewer = document.querySelector('.car-img-wrapper');
+
+  if (carViewer) {
+    carViewer.addEventListener('mousedown', e => {
+      isDragging = true;
+      startX = e.clientX;
+      startY = e.clientY;
+      carViewer.style.transition = 'none';
+      cursor.classList.add('hover');
+    });
+
+    document.addEventListener('mousemove', e => {
+      if (!isDragging) return;
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      startX = e.clientX;
+      startY = e.clientY;
+      rotationY += dx * 0.5;
+      rotationX = Math.max(-15, Math.min(15, rotationX - dy * 0.3));
+      carViewer.style.transform = `perspective(2000px) rotateY(${rotationY}deg) rotateX(${rotationX}deg) scale(1.1)`;
+    });
+
+    document.addEventListener('mouseup', () => {
+      if (!isDragging) return;
+      isDragging = false;
+      carViewer.style.transition = 'transform 0.8s cubic-bezier(0.23, 1, 0.32, 1)';
+      cursor.classList.remove('hover');
+    });
+
+    // Touch support
+    carViewer.addEventListener('touchstart', e => {
+      isDragging = true;
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+      carViewer.style.transition = 'none';
+    });
+    document.addEventListener('touchmove', e => {
+      if (!isDragging) return;
+      const dx = e.touches[0].clientX - startX;
+      const dy = e.touches[0].clientY - startY;
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+      rotationY += dx * 0.5;
+      rotationX = Math.max(-15, Math.min(15, rotationX - dy * 0.3));
+      carViewer.style.transform = `perspective(2000px) rotateY(${rotationY}deg) rotateX(${rotationX}deg) scale(1.1)`;
+    });
+    document.addEventListener('touchend', () => { isDragging = false; carViewer.style.transition = 'transform 0.8s cubic-bezier(0.23, 1, 0.32, 1)'; });
+  }
+
+  // Hotspots Interaction
+  document.querySelectorAll('.hotspot').forEach(spot => {
+    spot.addEventListener('mouseenter', () => {
+      spot.querySelector('.hotspot-content').style.opacity = '1';
+      spot.querySelector('.hotspot-content').style.transform = 'translate(-50%, -100%) scale(1)';
+    });
+    spot.addEventListener('mouseleave', () => {
+      spot.querySelector('.hotspot-content').style.opacity = '0';
+      spot.querySelector('.hotspot-content').style.transform = 'translate(-50%, -100%) scale(0.8)';
+    });
+  });
+
+  // Scroll Parallax refinements
+  window.addEventListener('scroll', () => {
+    const s = window.scrollY;
+    const heroImage = document.querySelector('.hero-profile-img');
+    const heroContent = document.querySelector('.hero-content');
+    if (heroImage) heroImage.style.transform = `translateY(${s * 0.15}px) scale(${1 + s * 0.0004})`;
+    if (heroContent) heroContent.style.opacity = 1 - s / 1000;
+  });
+
+  // TRACK MODAL LOGIC
+  const modal = document.getElementById('trackModal');
+  const modalImg = document.getElementById('trackImg');
+  const modalTitle = document.getElementById('modalRaceName');
+  const modalLaps = document.getElementById('modalLaps');
+  const modalLength = document.getElementById('modalLength');
+  const closeModal = document.querySelector('.close-modal');
+
+  document.querySelectorAll('.race-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const trackSrc = card.dataset.track;
+      const laps = card.dataset.laps;
+      const length = card.dataset.length;
+      const raceName = card.querySelector('.race-name').textContent;
+      
+      modalImg.classList.remove('loaded');
+      modalImg.src = trackSrc;
+      modalImg.onload = () => modalImg.classList.add('loaded');
+      
+      modalTitle.textContent = raceName;
+      modalLaps.textContent = laps;
+      modalLength.textContent = length + ' KM';
+      
+      modal.classList.add('visible');
+    });
+  });
+
+  closeModal.addEventListener('click', () => {
+    modal.classList.remove('visible');
+  });
+
+  window.addEventListener('click', (e) => {
+    if (e.target === modal) modal.classList.remove('visible');
+  });
+
+  // MAGNETIC 3D TILT FOR PHOTO GALLERY
+  document.querySelectorAll('.photo-card').forEach(card => {
+    card.addEventListener('mousemove', e => {
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+      const rotateX = ((y - centerY) / centerY) * -10;
+      const rotateY = ((x - centerX) / centerX) * 10;
+      
+      card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+    });
+    
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = `rotateX(0) rotateY(0) scale(1)`;
+    });
+  });
+
+  // Reveal observer with custom class
+  const revealObserver = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('reveal-active');
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  // STANDINGS TABS & EXPAND
+  window.switchStandings = function(tab, btn) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    
+    document.querySelectorAll('.standings-table-container').forEach(t => t.classList.remove('active'));
+    document.getElementById('table-' + tab).classList.add('active');
+  };
+
+  window.toggleExpandStandings = function(btn) {
+    const isExpanded = btn.classList.toggle('expanded');
+    const extraRows = document.querySelectorAll('.extra-row');
+    extraRows.forEach(row => row.classList.toggle('hidden', !isExpanded));
+    
+    btn.querySelector('.label-text').innerText = isExpanded ? 'Mostrar menos' : 'Mostrar más';
+    btn.querySelector('.arrow-up').style.transform = isExpanded ? 'rotate(180deg)' : 'rotate(0deg)';
+  };
+</script>
+</body>
+</html>
